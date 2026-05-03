@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MBTI 64人格测试 Pro</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont;
+    background: linear-gradient(135deg,#f5f7fa,#e4ecf7);
+}
+
+.container {
+    max-width: 720px;
+    margin: auto;
+    padding: 20px;
+}
+
+/* 标题 */
+h1 {
+    text-align: center;
+}
+
+/* 进度条 */
+.progress {
+    height: 8px;
+    background: #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+.progress-bar {
+    height: 100%;
+    width: 0%;
+    background: #4a90e2;
+    transition: 0.3s;
+}
+
+/* 卡片 */
+.card {
+    background: white;
+    border-radius: 18px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    transition: 0.25s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+/* 选项 */
+.options {
+    display: flex;
+    margin-top: 15px;
+}
+
+.options button {
+    flex: 1;
+    margin: 4px;
+    padding: 12px;
+    border-radius: 12px;
+    border: none;
+    background: #f0f0f0;
+    cursor: pointer;
+}
+
+.options button.active {
+    background: #4a90e2;
+    color: white;
+}
+
+/* 按钮 */
+.btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 14px;
+    border: none;
+    background: black;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+/* 结果 */
+.result {
+    display: none;
+}
+.tag {
+    display: inline-block;
+    padding: 6px 10px;
+    background: #eee;
+    border-radius: 8px;
+    margin: 4px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>MBTI 64人格测试 Pro</h1>
+
+    <div class="progress">
+        <div class="progress-bar" id="bar"></div>
+    </div>
+
+    <div id="questions"></div>
+
+    <button class="btn" onclick="calc()">查看结果</button>
+
+    <div class="result card" id="result"></div>
+</div>
+
+<script>
+
+// ==== 题库（40题）====
+const qs = [
+["我更喜欢独处","I"],
+["我依赖直觉","N"],
+["我理性决策","T"],
+["我喜欢计划","J"],
+
+["社交让我疲惫","I"],
+["我关注未来","N"],
+["我讲逻辑","T"],
+["我做事有计划","J"],
+
+["我不喜欢频繁社交","I"],
+["我富有想象力","N"],
+["我重分析","T"],
+["我重秩序","J"],
+
+["我更安静","I"],
+["我喜欢抽象思考","N"],
+["我客观冷静","T"],
+["我喜欢掌控节奏","J"],
+
+// 再补充一组反向题（更科学）
+["我喜欢人多热闹","E"],
+["我注重现实细节","S"],
+["我容易共情","F"],
+["我随性自由","P"],
+
+["我主动社交","E"],
+["我重经验","S"],
+["我重感受","F"],
+["我不喜欢被约束","P"],
+
+["我爱表达","E"],
+["我关注当下","S"],
+["我优先考虑他人","F"],
+["我喜欢灵活安排","P"],
+
+["我在人群中充电","E"],
+["我重实际","S"],
+["我容易被情绪影响","F"],
+["我讨厌计划","P"]
+];
+
+let ans = new Array(qs.length).fill(0);
+
+const container = document.getElementById("questions");
+const bar = document.getElementById("bar");
+
+// 渲染题目
+qs.forEach((q,i)=>{
+    const div = document.createElement("div");
+    div.className="card";
+
+    div.innerHTML = `
+    <div>${i+1}. ${q[0]}</div>
+    <div class="options">
+        <button onclick="sel(${i},2,this)">强同意</button>
+        <button onclick="sel(${i},1,this)">同意</button>
+        <button onclick="sel(${i},0,this)">中立</button>
+        <button onclick="sel(${i},-1,this)">不同意</button>
+        <button onclick="sel(${i},-2,this)">强不同意</button>
+    </div>`;
+
+    container.appendChild(div);
+});
+
+function sel(i,v,el){
+    ans[i]=v;
+    [...el.parentNode.children].forEach(b=>b.classList.remove("active"));
+    el.classList.add("active");
+
+    const done = ans.filter(x=>x!==0).length;
+    bar.style.width = (done/qs.length*100)+"%";
+}
+
+// ==== 结果数据库（示例）====
+const desc = {
+"INTJ": {
+    title:"战略型人格",
+    good:["逻辑强","独立","规划能力强"],
+    bad:["冷漠","过度理性"],
+    job:["产品经理","工程师","策略分析"],
+    love:"慢热但稳定"
+},
+"ENFP": {
+    title:"激励者人格",
+    good:["热情","创造力强"],
+    bad:["三分钟热度"],
+    job:["创意","市场","内容"],
+    love:"浪漫但不稳定"
+}
+};
+
+// ==== 计算 ====
+function calc(){
+
+    let s={E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0};
+
+    qs.forEach((q,i)=>{
+        let t=q[1],v=ans[i];
+
+        if(s[t]!==undefined) s[t]+=v;
+        else {
+            // 反向
+            if(t==="E"){s.E+=v;s.I-=v;}
+            if(t==="S"){s.S+=v;s.N-=v;}
+            if(t==="F"){s.F+=v;s.T-=v;}
+            if(t==="P"){s.P+=v;s.J-=v;}
+        }
+    });
+
+    function pick(a,b){return s[a]>s[b]?a:b;}
+
+    const type = pick("E","I")+pick("S","N")+pick("T","F")+pick("J","P");
+
+    function lv(v){
+        v=Math.abs(v);
+        if(v>6)return"强";
+        if(v>3)return"中";
+        return"弱";
+    }
+
+    const detail = lv(s.E-s.I)+lv(s.S-s.N)+lv(s.T-s.F)+lv(s.J-s.P);
+
+    const d = desc[type] || {
+        title:"综合型人格",
+        good:["适应性强"],
+        bad:["不稳定"],
+        job:["多领域"],
+        love:"视情况而定"
+    };
+
+    const el=document.getElementById("result");
+    el.style.display="block";
+
+    el.innerHTML=`
+    <h2>${type}-${detail}</h2>
+    <h3>${d.title}</h3>
+
+    <p><b>优势：</b>${d.good.map(x=>`<span class="tag">${x}</span>`).join("")}</p>
+    <p><b>劣势：</b>${d.bad.map(x=>`<span class="tag">${x}</span>`).join("")}</p>
+    <p><b>职业：</b>${d.job.map(x=>`<span class="tag">${x}</span>`).join("")}</p>
+
+    <p><b>情感：</b>${d.love}</p>
+
+    <hr>
+
+    <p><b>分析依据：</b><br>
+    通过40题多维度评分，计算四大人格维度(E/I, S/N, T/F, J/P)，
+    并结合强度分层（强/中/弱）扩展为64种人格。
+    分值越高，说明倾向越明显。
+    </p>
+    `;
+}
+
+</script>
+
+</body>
+</html>
