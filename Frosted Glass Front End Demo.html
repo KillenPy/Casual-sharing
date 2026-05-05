@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frosted glass UI Demo</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+.glass::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 50%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 100%);
+  pointer-events: none;
+  border-radius: 24px 24px 0 0;
+}
+
+.container {
+  width: 100%;
+  max-width: 900px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.header {
+  padding: 28px 32px;
+  text-align: center;
+}
+.header h1 {
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  background: linear-gradient(90deg, #a8edea, #fed6e3);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.header p {
+  font-size: 14px;
+  color: rgba(255,255,255,0.6);
+}
+
+.panel {
+  padding: 28px 32px;
+}
+.panel-title {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.panel-title .dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #a8edea;
+  box-shadow: 0 0 8px #a8edea;
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.control-group label {
+  font-size: 13px;
+  color: rgba(255,255,255,0.7);
+  font-weight: 500;
+}
+.control-group input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255,255,255,0.15);
+  outline: none;
+}
+.control-group input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: #a8edea;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(168,237,234,0.5);
+  border: 2px solid rgba(255,255,255,0.8);
+}
+.control-group select {
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+}
+.control-group select option {
+  background: #1a1a2e;
+  color: #fff;
+}
+.control-group .toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.toggle-switch {
+  position: relative;
+  width: 44px; height: 24px;
+}
+.toggle-switch input {
+  opacity: 0; width: 0; height: 0;
+}
+.toggle-switch .slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(255,255,255,0.2);
+  border-radius: 24px;
+  transition: 0.3s;
+}
+.toggle-switch .slider::before {
+  content: "";
+  position: absolute;
+  height: 18px; width: 18px;
+  left: 3px; bottom: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: 0.3s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.toggle-switch input:checked + .slider {
+  background: linear-gradient(90deg, #a8edea, #fed6e3);
+}
+.toggle-switch input:checked + .slider::before {
+  transform: translateX(20px);
+}
+
+.table-wrap {
+  overflow-x: auto;
+  border-radius: 16px;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+thead th {
+  text-align: left;
+  padding: 14px 16px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.7);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.03);
+}
+tbody td {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.85);
+}
+tbody tr:hover td {
+  background: rgba(255,255,255,0.05);
+}
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.progress-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.progress-bar {
+  flex: 1;
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.12);
+  overflow: hidden;
+  position: relative;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #a8edea, #fed6e3);
+  box-shadow: 0 0 8px rgba(168,237,234,0.4);
+  transition: width 0.6s ease;
+  position: relative;
+}
+.progress-fill::after {
+  content: "";
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 20px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4));
+  border-radius: 0 4px 4px 0;
+}
+.progress-value {
+  min-width: 40px;
+  text-align: right;
+  font-weight: 600;
+  font-size: 13px;
+  color: #a8edea;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+}
+.badge.success { background: rgba(168,237,234,0.15); color: #a8edea; border-color: rgba(168,237,234,0.3); }
+.badge.warning { background: rgba(254,214,227,0.15); color: #fed6e3; border-color: rgba(254,214,227,0.3); }
+.badge.danger { background: rgba(255,107,107,0.15); color: #ff6b6b; border-color: rgba(255,107,107,0.3); }
+
+.code-block {
+  padding: 24px 32px;
+  font-family: "SF Mono", "Fira Code", "Cascadia Code", Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.7;
+  color: rgba(255,255,255,0.8);
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.code-block .token-prop { color: #fed6e3; }
+.code-block .token-val { color: #a8edea; }
+.code-block .token-punc { color: rgba(255,255,255,0.5); }
+
+@media (max-width: 600px) {
+  .controls { grid-template-columns: 1fr; }
+  .panel { padding: 20px 16px; }
+  .header { padding: 20px 16px; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="glass header">
+    <h1>Glass UI Demo</h1>
+    <p>Modern interface style based on backdrop-filter & multi-layer lighting</p>
+  </div>
+
+  <div class="glass panel">
+    <div class="panel-title"><span class="dot"></span>Control Panel</div>
+    <div class="controls">
+      <div class="control-group">
+        <label>Blur Strength</label>
+        <input type="range" min="0" max="40" value="20" id="blurRange">
+      </div>
+      <div class="control-group">
+        <label>Opacity</label>
+        <input type="range" min="0" max="100" value="8" id="opacityRange">
+      </div>
+      <div class="control-group">
+        <label>Border Radius</label>
+        <input type="range" min="0" max="40" value="24" id="radiusRange">
+      </div>
+      <div class="control-group">
+        <label>Theme Color</label>
+        <select id="themeSelect">
+          <option value="default">Deep Sea Blue (Default)</option>
+          <option value="purple">Aurora Purple</option>
+          <option value="green">Forest Green</option>
+          <option value="warm">Warm Sunset</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label>Highlight Effect</label>
+        <div class="toggle-row">
+          <label class="toggle-switch">
+            <input type="checkbox" checked id="highlightToggle">
+            <span class="slider"></span>
+          </label>
+          <span style="font-size:13px;color:rgba(255,255,255,0.6)">Enable Top Highlight</span>
+        </div>
+      </div>
+      <div class="control-group">
+        <label>Border Intensity</label>
+        <input type="range" min="0" max="100" value="18" id="borderRange">
+      </div>
+    </div>
+  </div>
+
+  <div class="glass panel">
+    <div class="panel-title"><span class="dot"></span>Data Demo Table</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Project Name</th>
+            <th>Status</th>
+            <th>Progress</th>
+            <th>Owner</th>
+            <th>Priority</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Frontend Architecture Refactor</td>
+            <td><span class="badge success">In Progress</span></td>
+            <td>
+              <div class="progress-cell">
+                <div class="progress-bar"><div class="progress-fill" style="width:78%"></div></div>
+                <span class="progress-value">78%</span>
+              </div>
+            </td>
+            <td>李明</td>
+            <td><span class="badge">P1</span></td>
+          </tr>
+          <tr>
+            <td>API Interface Optimization</td>
+            <td><span class="badge success">In Progress</span></td>
+            <td>
+              <div class="progress-cell">
+                <div class="progress-bar"><div class="progress-fill" style="width:45%"></div></div>
+                <span class="progress-value">45%</span>
+              </div>
+            </td>
+            <td>王芳</td>
+            <td><span class="badge warning">P2</span></td>
+          </tr>
+          <tr>
+            <td>Database Migration</td>
+            <td><span class="badge warning">Pending Review</span></td>
+            <td>
+              <div class="progress-cell">
+                <div class="progress-bar"><div class="progress-fill" style="width:92%"></div></div>
+                <span class="progress-value">92%</span>
+              </div>
+            </td>
+            <td>张伟</td>
+            <td><span class="badge">P1</span></td>
+          </tr>
+          <tr>
+            <td>Security Audit</td>
+            <td><span class="badge danger">Delayed</span></td>
+            <td>
+              <div class="progress-cell">
+                <div class="progress-bar"><div class="progress-fill" style="width:23%"></div></div>
